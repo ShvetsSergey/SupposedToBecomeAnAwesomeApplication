@@ -13,7 +13,6 @@ import com.example.demo.dl.MessageEntity;
 
 import lombok.extern.slf4j.Slf4j;
 
-
 /**
  * Rest controller responsible for handling next list of Http requests:
  * <P>

@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.CannotCreateTransactionException;
 
 import com.example.demo.bl.MessageService;
 import com.example.demo.dl.MessageEntity;
@@ -45,8 +47,9 @@ public class MessageControllerLoggerTest {
 	 */
 	private MessageEntity mesEntity;
 	private String expectedDataFromMessageEntity;
+	String penultimateLineOfLog;
 	private final Integer messageId = 1;
-	private final String startTextOfMessage = "Some text to post into the message";
+	private final String messageInitializationText = "Some text to post into the message";
 
 	/**
 	 * Actions performed before every test:<br>
@@ -60,7 +63,7 @@ public class MessageControllerLoggerTest {
 		mesEntity = new MessageEntity();
 
 		mesEntity.setMesId(messageId.longValue());
-		mesEntity.setText(startTextOfMessage);
+		mesEntity.setText(messageInitializationText);
 		mesEntity.setGrId(1L);
 		mesEntity.setDate();
 
@@ -70,6 +73,7 @@ public class MessageControllerLoggerTest {
 		expectedDataFromMessageEntity += "Date of posting message: \n";
 		expectedDataFromMessageEntity += "\t " + mesEntity.getDate().toString() + "\n\n";
 
+		penultimateLineOfLog = getLastLineFromLog();
 	}
 
 	private String getLastLineFromLog() {
@@ -104,12 +108,10 @@ public class MessageControllerLoggerTest {
 	public void postMessageSuccesfulLoggerPositiveTest() {
 
 		Mockito.when(mesService.checkMessageIfExixting(messageId)).thenReturn(false);
-		Mockito.when(mesService.postMessage(messageId, startTextOfMessage, 1)).thenReturn(mesEntity);
+		Mockito.when(mesService.postMessage(messageId, messageInitializationText, 1)).thenReturn(mesEntity);
 		Mockito.when(mesService.getDataFromMessageEntity(mesEntity)).thenReturn(expectedDataFromMessageEntity);
 
-		String penultimateLineOfLog = getLastLineFromLog();
-
-		mesCont.postMessage(messageId, startTextOfMessage);
+		mesCont.postMessage(messageId, messageInitializationText);
 
 		String lastLineOfLog = getLastLineFromLog();
 
@@ -119,8 +121,56 @@ public class MessageControllerLoggerTest {
 				.contains("Posted new message with id= " + messageId);
 	}
 
-//	@Test
-//	public void 
-//	
+	/**
+	 * Case for testing a logger of postMessage(int id, String text, int grId)
+	 * method which is posting a new MessageEntity object to the database.<br>
+	 * In this test case is tested case when provided ID is occupied.
+	 * <p>
+	 * Expected result is new line in log ApplicationLog.log file reporting that
+	 * there is no way to post a new message with provided ID since there is another
+	 * message with the same ID.
+	 */
+
+	@Test
+	public void postMessageUnsuccesfulLoggerPositiveTest() {
+
+		Mockito.when(mesService.checkMessageIfExixting(any(int.class))).thenReturn(true);
+
+		mesCont.postMessage(messageId, messageInitializationText);
+
+		String lastLineOfLog = getLastLineFromLog();
+
+		assertThat(lastLineOfLog).describedAs("New line to log wasnt added.").doesNotContain(penultimateLineOfLog);
+
+		assertThat(lastLineOfLog).describedAs("Actual last line of log is different from the expected one.")
+				.contains("Unable to post a new message with ID " + messageId
+						+ " since message with provided ID is already exists.");
+	}
+
+	/**
+	 * Case for testing a logger of postMessage(int id, String text, int grId)
+	 * method which is posting a new MessageEntity object to the database.<br>
+	 * In this test case tested case when there are troubles with database
+	 * connection.
+	 * <p>
+	 * Expected result is new line in log ApplicationLog.log file reporting that
+	 * there are troubles with database connection.
+	 */
+	@Test
+	public void postMessageCannotCreateTransactionExceptionNegativeTest() {
+		String textOfException = "Text of exception";
+
+		CannotCreateTransactionException exception = new CannotCreateTransactionException(textOfException);
+
+		Mockito.when(mesService.checkMessageIfExixting(any(int.class))).thenThrow(exception);
+		mesCont.postMessage(messageId, messageInitializationText);
+
+		String lastLineOfLog = getLastLineFromLog();
+
+		assertThat(lastLineOfLog).describedAs("New line to log wasnt added.").doesNotContain(penultimateLineOfLog);
+
+		assertThat(lastLineOfLog).describedAs("Actual last line of log is different from the expected one.")
+				.contains("Wrong database connection parameters. " + exception.toString());
+	}
 
 }
