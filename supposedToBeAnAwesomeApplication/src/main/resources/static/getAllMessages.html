@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<title>Messages</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport"
+			content="width=device-width, initial-scale=1.0" />
+	</head>
+
+	<body>
+		<h2>List of messages</h2>
+
+		<table>
+			<tr>
+				<th>Id</th>
+				<th>Text</th>
+				<th>Group</th>
+				<th>Date</th>
+			</tr>
+
+			<tr th:each="message : ${messages}">
+				<td th:text="${message.m_id}">Message ID:</td>
+				<td th:text="${message.m_text}">Text of message:</td>
+				<td th:text="${message.gr_id}">Group of message:</td>
+				<td th:text="${message.m_date}">Date of posting message:</td>
+			</tr>
+		</table>
+
+	</body>
+</html>

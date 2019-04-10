@@ -1,0 +1,24 @@
+CREATE TABLE "Groups" (
+	"gr_ID" serial NOT NULL,
+	"gr_name" TEXT NOT NULL,
+	CONSTRAINT Groups_pk PRIMARY KEY ("gr_ID")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+CREATE TABLE "Messages" (
+	"m_ID" serial NOT NULL,
+	"m_Text" VARCHAR(255) NOT NULL,
+	"gr_ID" integer NOT NULL,
+	"m_Date" DATE NOT NULL,
+	CONSTRAINT Messages_pk PRIMARY KEY ("m_ID")
+) WITH (
+  OIDS=FALSE
+);
+
+
+
+
+ALTER TABLE "Messages" ADD CONSTRAINT "Messages_fk0" FOREIGN KEY ("gr_ID") REFERENCES "Groups"("gr_ID");

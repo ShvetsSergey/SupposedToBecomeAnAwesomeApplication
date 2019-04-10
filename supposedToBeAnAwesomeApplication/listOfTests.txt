@@ -1,0 +1,41 @@
+
+MessageController tests:
+	postMappingMessageWithAvailableIDPositiveTest
+	postMappingMessageWithOccupiedIDNegativeTest
+	postMappingMessageWithNullTextNegativeTest
+
+	getMappingMessagesPositiveTest
+	getMappingNoMessagesPositiveTest
+	getMappingCannotCreateTransactionExceptionNegativeTest
+	
+	getMappingMessageByIDPositiveTest
+	getMappingUnexistingMessageByIDNegativeTest
+	getMappingTransactionExceptionGetMessageByIDNegativeTest
+
+	putMappingMessagePositiveTest
+	putMappingUnexistingMessageNegativeTest
+	putMappingMessageWithNullTextPositiveTest
+
+	deleteMessagePositiveTest
+	deleteUnexistingMessageNegativeTest
+	deleteMessageThrowsCannotCreateConnectionExceptionNegativeTest
+
+MessageService tests:
+
+	findAllWhenMessagesExistingPositiveTest
+	findAllWhenNoMesagesExistingPositiveTest
+	findAllWhenMessageRepositoryReturnsNullNegativeTest
+	findAllWhenNoDataBaseConnectionNegativeTest
+	
+	postMessagePositiveTest
+-	postMessageNoDatabaseConnectionNegativeTest
+	
+	checkMessageIfExistingPositiveTest
+	
+-	deleteByIDPositiveTest
+	deleteMessageThrowsCannotCreateConnectionExceptionNegativeTest
+	
+	getMessageByIdPositiveTest
+	getMessageByIdOfUnexistingMessagePositiveTest
+	
+	getDataFromMessageEntityPositiveTest
